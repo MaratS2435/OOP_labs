@@ -7,11 +7,11 @@ int main() {
     Five empt;
     cout << empt << " Empty..."<< endl;
  
-    Five a(5, 10);
+    Five a(5, '2');
     cout << a << endl;
     string str;
     cin >> str;
-    Five b = {4, 10, 12};
+    Five b {"432"};
     Five c = str;
     if (b != c) cout << b << " and " << c << " are not equal and their sum is " << b + c << endl;
     
