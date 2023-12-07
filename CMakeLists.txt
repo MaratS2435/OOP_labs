@@ -1,8 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
-project(lab2)
+project(lab3)
 
-find_package(Threads REQUIRED)
-set(CMAKE_CXX_STANDARD 20)
+find_package(GTest REQUIRED)
+include_directories(${GTEST_INCLUDE_DIRS} )
+
+
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -11,14 +14,10 @@ set(TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/test)
 
 include_directories(${INCLUDE_DIR})
 
-file(GLOB_RECURSE SOURCES LIST_DIRECTORIES false ${SOURCE_DIR}/*.cpp)
-file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false ${TEST_DIR}/*.cpp)
+add_executable(lab3 ./main.cpp ./src/Point.cpp ./src/Figure.cpp ./src/ArrFigure.cpp ./src/Trapezoid.cpp ./src/Rhomb.cpp ./src/Pentagon.cpp)
 
-add_library(${CMAKE_PROJECT_NAME}_lib ${SOURCES})
-add_executable(${CMAKE_PROJECT_NAME}_main main.cpp)
-add_executable(${CMAKE_PROJECT_NAME}_test ${TEST_SOURCES})
+enable_testing()
+add_executable(tests3 ./test/tests.cpp ./src/Point.cpp ./src/Figure.cpp ./src/ArrFigure.cpp ./src/Trapezoid.cpp ./src/Rhomb.cpp ./src/Pentagon.cpp)
+target_link_libraries(tests3 ${GTEST_LIBRARIES})
 
-target_link_libraries(${CMAKE_PROJECT_NAME}_main PRIVATE ${CMAKE_PROJECT_NAME}_lib Threads::Threads)
-target_include_directories(${CMAKE_PROJECT_NAME}_test PRIVATE ${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
-target_link_libraries(${CMAKE_PROJECT_NAME}_test PRIVATE ${CMAKE_PROJECT_NAME}_lib gtest gtest_main Threads::Threads)
-add_test(NAME BASIC COMMAND tests01)
+add_test(NAME BASIC COMMAND tests3)

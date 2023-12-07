@@ -1,26 +1,20 @@
 #include <iostream>
-#include "Five.h"
-
-using namespace std;
+#include "Trapezoid.h"
+#include "Rhomb.h"
+#include "Pentagon.h"
+#include "ArrFigure.h"
 
 int main() {
-    Five empt;
-    cout << empt << " Empty..."<< endl;
- 
-    Five a(5, 10);
-    cout << a << endl;
-    string str;
-    cin >> str;
-    Five b = {4, 10, 12};
-    Five c = str;
-    if (b != c) cout << b << " and " << c << " are not equal and their sum is " << b + c << endl;
+    ArrFigure a;
+    Trapezoid t;
+    Rhomb r;
+    std::cin >> t >> r;
+    std::cout << "\n";
+    a.Push(&t);
+    a.Push(&r);
+    a.Centers();
+    a.Areas();
+    std::cout << a << '\n';
     
-    Five d = string("000000000004");
-    Five f = string("01");
-    cout << d << endl;
-    cout << f << endl;
-    cout << d - f << endl;
-    cout << d + f << endl;
-
-return 0;
+    return 0;
 }
