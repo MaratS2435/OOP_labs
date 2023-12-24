@@ -1,7 +1,7 @@
 #include <iostream>
 #include <list>
 #pragma once
-template <typename T, size_t N = 100>
+template <typename T, std::size_t N = 100>
 class MyAllocator {
 public:
     using value_type = T;
@@ -16,15 +16,15 @@ public:
 
     MyAllocator() : free_count(0) {}
 
-    T* allocate(size_t) {
+    T* allocate(std::size_t) {
         free_count += N;
         return reinterpret_cast<T*>(::operator new(N * sizeof(T)));
     }
     
-    void deallocate(T* p, size_t) noexcept {
+    void deallocate(T* p, std::size_t) noexcept {
         ::operator delete(p);
     }
 private:
     std::list<T*> memoryBlocks;
-    size_t free_count;
+    std::size_t free_count;
 };
