@@ -18,10 +18,10 @@ bool Dragon::accept(const std::shared_ptr<NPC> attacker) {
     return result;
 }
 
-void Dragon::save(std::ostream &os) 
+void Dragon::saving(std::ostream &os) 
 {
     os << DragonType << std::endl;
-    NPC::save(os);
+    NPC::saving(os);
 }
 
 std::ostream &operator<<(std::ostream &os, Dragon &dragon)

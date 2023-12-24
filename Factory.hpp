@@ -3,6 +3,7 @@
 #include "WanderingKnight.hpp"
 #include "Princess.hpp"
 #include "FightObserver.hpp"
+#include <cstring>
 #pragma once
 
 // Фабрики -----------------------------------
@@ -57,7 +58,7 @@ void save(const set_t &array, const std::string &filename) {
     std::ofstream fs(filename);
     fs << array.size() << std::endl;
     for (auto &n : array)
-        n->save(fs);
+        n->saving(fs);
     fs.flush();
     fs.close();
 }

@@ -10,10 +10,10 @@ void Princess::print()
     std::cout << *this;
 }
 
-void Princess::save(std::ostream &os)
+void Princess::saving(std::ostream &os)
 {
     os << PrincessType << std::endl;
-    NPC::save(os);
+    NPC::saving(os);
 }
 
 bool Princess::accept(const std::shared_ptr<NPC> attacker) {

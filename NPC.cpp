@@ -24,7 +24,7 @@ NpcType NPC::get_type()
     return type;
 }
 
-bool NPC::is_close(const std::shared_ptr<NPC> &other, size_t distance) const
+bool NPC::is_close(const std::shared_ptr<NPC> &other, std::size_t distance) const
 {
     if (std::pow(x - other->x, 2) + std::pow(y - other->y, 2) <= std::pow(distance, 2))
         return true;
@@ -32,7 +32,7 @@ bool NPC::is_close(const std::shared_ptr<NPC> &other, size_t distance) const
         return false;
 }
 
-void NPC::save(std::ostream &os)
+void NPC::saving(std::ostream &os)
 {
     os << x << std::endl;
     os << y << std::endl;

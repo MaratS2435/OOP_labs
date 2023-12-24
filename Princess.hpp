@@ -7,7 +7,7 @@ struct Princess final: public NPC
     Princess(std::istream &is);
 
     void print() override;
-    void save(std::ostream &os) override;
+    void saving(std::ostream &os) override;
     bool accept(std::shared_ptr<NPC> attacker) override;
     friend std::ostream &operator<<(std::ostream &os, Princess &knight);
 };

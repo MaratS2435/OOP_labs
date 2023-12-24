@@ -9,7 +9,7 @@ struct Dragon final: public NPC
     void print() override;
     bool accept(std::shared_ptr<NPC> attacker) override;
 
-    void save(std::ostream &os) override;
+    void saving(std::ostream &os) override;
 
     friend std::ostream &operator<<(std::ostream &os, Dragon &dragon);
 };

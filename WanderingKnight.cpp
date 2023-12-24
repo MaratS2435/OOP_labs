@@ -10,10 +10,10 @@ void WanderingKnight::print()
     std::cout << *this;
 }
 
-void WanderingKnight::save(std::ostream &os)
+void WanderingKnight::saving(std::ostream &os)
 {
     os << WanderingKnightType << std::endl;
-    NPC::save(os);
+    NPC::saving(os);
 }
 
 bool WanderingKnight::accept(const std::shared_ptr<NPC> attacker) {
