@@ -1,4 +1,5 @@
 #include "battlefield.h"
+#include <time.h>
 
 std::mutex print_mutex;
 
@@ -29,7 +30,7 @@ void Battlefield::detachObs(std::shared_ptr<ObserverBattlefield> obs) {
     }
 }
 
-void Battlefield::fillRandomly(size_t seed, size_t orcs, size_t squirrels, size_t bears) {
+void Battlefield::fillRandomly(std::size_t seed, std::size_t orcs, std::size_t squirrels, std::size_t bears) {
     srand(seed);
     std::shared_ptr<Factory> factoryB = std::make_shared<BearFactory>();
     std::shared_ptr<Factory> factoryO = std::make_shared<OrcFactory>();
@@ -37,7 +38,7 @@ void Battlefield::fillRandomly(size_t seed, size_t orcs, size_t squirrels, size_
     std::shared_ptr<NPC> orcNPC;
     std::shared_ptr<NPC> squirrelNPC;
     std::shared_ptr<NPC> bearNPC;
-    size_t c_sq = 0, c_b = 0, c_o = 0;
+    std::size_t c_sq = 0, c_b = 0, c_o = 0;
     while(c_b < bears || c_sq < squirrels || c_o < orcs) {
         switch (rand() % 3 + 1) {
             case BEAR:
