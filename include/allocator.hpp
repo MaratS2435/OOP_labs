@@ -5,7 +5,7 @@
 template <class T>
 class Allocator{
 public:
-    static constexpr size_t max_count = 332640;
+    static constexpr std::size_t max_count = 332640;
     using value_type = T;
     using pointer = T*;
     using const_pointer = const T*;
