@@ -1,81 +1,117 @@
-#include "NPC.hpp"
-#include "Dragon.hpp"
-#include "WanderingKnight.hpp"
-#include "Princess.hpp"
-#include "FightObserver.hpp"
-#include "Factory.hpp"
+#include "bull.hpp"
+#include "dragon.hpp"
+#include "frog.hpp"
 
-// Сохранение массива в файл
-void saving(const set_t &array, const std::string &filename) {
-    std::ofstream fs(filename);
-    fs << array.size() << std::endl;
-    for (auto &n : array)
-        n->saving(fs);
-    fs.flush();
-    fs.close();
+void printLine(){
+    std::cout << "------------------------------------------------\n"; 
 }
 
-set_t loading(const std::string &filename) {
-    set_t result;
-    std::ifstream is(filename);
-    if (is.good() && is.is_open()) {
-        int count;
-        is >> count;
-        for (int i = 0; i < count; ++i)
-            result.insert(factory(is));
-        is.close();
-    } else
-        std::cerr << "Ошибка: " << std::strerror(errno) << std::endl;
-    return result;
-}
-
-// Вывод на экран
-std::ostream &operator<<(std::ostream &os, const set_t &array) {
-    for (auto &n : array)
-        n->print();
-    return os;
-}
-
-// Метод осуществляющий сражение с использованием паттерна Visitor
-set_t fight(const set_t &array, std::size_t distance) {
-    set_t dead_list;
-
-    for (const auto &attacker : array)
-        for (const auto &defender : array)
-            if ((attacker != defender) && (attacker->is_close(defender, distance))) {
-                bool success = attacker->accept(defender);
-                if (success)
-                    dead_list.insert(defender);
+void FightInterface(std::set<std::shared_ptr<NPC>>& creatures, int field[501][501]){
+    int distance;
+    char createSL;
+    std::cout << "Set the attack distance (0 <= distance <= 500): ";
+            std::cin >> distance;
+            printLine();
+            printLine();
+            std::cout << "Fight mode activating...\n";
+            TextObserver textObserver(creatures);
+            FileObserver fileObserver(creatures, "log.txt");
+            std::cout << "Fight mode on.\n";
+            printLine();
+            std::set<std::shared_ptr<NPC>> deadlist = fight(creatures, distance, field);
+            for(auto deadman : deadlist){
+                creatures.erase(deadman);
             }
-
-    return dead_list;
+            printLine();
+            std::cout << "Fight mode off.\n";
+            std::cout << "Want to create survivors list? (y/n): \n";
+            std::cin >> createSL;
+            if (createSL == 'y'){
+                std::cout << "Creating survivors list...\n";
+                saveCreatures(creatures, "SurvivorsList.txt");
+                std::cout << "Survivors list created!\n";
+            }
 }
 
-int main() {
-    set_t array; // монстры
-    std::cout << "Генерация ..." << std::endl;
-    for (std::size_t i = 0; i < 10; ++i)
-        array.insert(factory(NpcType(std::rand() % 3 + 1), std::rand() % 100, std::rand() % 100));
-    std::cout << "Сохранение ..." << std::endl;
-
-    saving(array, "npc.txt");
-
-    std::cout << "Загрузка ..." << std::endl;
-    array = loading("npc.txt");
-
-    std::cout << "Бой ..." << std::endl
-              << array;
-
-    for (std::size_t distance = 20; (distance <= 100) && !array.empty(); distance += 10) {
-        auto dead_list = fight(array, distance);
-        for (auto &d : dead_list)
-            array.erase(d);
-        std::cout << "Статистика боя ----------" << std::endl
-                  << "Дистанция: " << distance << std::endl
-                  << "Убито: " << dead_list.size() << std::endl
-                  << std::endl << std::endl;
+void Interface(){
+    std::set<std::shared_ptr<NPC>> creatures;
+    int field[501][501];
+    for (int i = 0; i < 501; i++){
+        for (int j = 0; j < 501; j++){
+            field[i][j] = 0;
+        }    
     }
 
-    std::cout << "Выжившие:" << array;
+    char input;
+    int emptyField = 1;
+    int programRunning = 1;
+    int distance;
+    char createSL;
+    int quantity;
+
+    printLine();
+    std::cout << "Welcome to the Balagur Fate 3 Dangeon Editor! Enter 'h' for help.\n";
+    printLine();
+    while(programRunning){
+        printLine();
+        std::cout << "> ";
+        std::cin >> input;
+        printLine();
+        printLine();
+        switch (input){
+            case 'h':
+                std::cout << "Editor capabilities:\n";
+                std::cout << "h - help.\n";
+                std::cout << "f - switch on fight mode.\n";
+                std::cout << "g - generate new random creatures.\n";
+                std::cout << "l - load creatures from save.\n";
+                std::cout << "p - print all characters.\n";
+                std::cout << "q - quit\n";
+                break;
+            case 'f':
+                if (emptyField){
+                    std::cout << "Field is empty!\n";
+                    break;
+                }
+                FightInterface(creatures, field);
+                break;
+            case 'g':
+                std::cout << "Enter characters quantity: ";
+                std::cin >> quantity;
+                std::cout << "Generating NPC...\n";
+                generateCreatures(creatures, quantity, field);
+                std::cout << "Generated NPC: " << quantity << ".\n";
+                emptyField = 0;
+                break;
+            case 'l':
+                std::cout << "WARNING! If the coordinates of a saved creature coincide with the coordinates of a creature on the field, it will not be loaded.\n";
+                std::cout << "Loading...\n";
+                loadCreatures(creatures, "saved_creatures.txt", field);
+                std::cout << "Save loaded!\n";
+                emptyField = 0;
+                break;
+            case 'p':
+                std::cout << creatures.size() << " creatures on field!\n";
+                printLine();
+                for (auto creature : creatures){
+                    creature->print(std::cout);
+                }
+                printLine();
+                std::cout << "You can fight them!\n";
+                break;
+            case 'q':
+                std::cout << "See you later!\n";
+                programRunning = 0;
+                break;
+            default:
+                std::cout << "Invalid input!\n";
+                break;
+        }
+        printLine();
+    }
+}
+
+int main(){
+    Interface();
     return 0;
 }
