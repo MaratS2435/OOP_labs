@@ -39,7 +39,7 @@ class Battlefield {
         void detachObs(std::shared_ptr<ObserverBattlefield> observer);
         void notify(int win);
 
-        void fillRandomly(size_t seed, size_t orcs, size_t squrrels, size_t bears);
+        void fillRandomly(std::size_t seed, std::size_t orcs, std::size_t squrrels, std::size_t bears);
         void placeHero(std::shared_ptr<NPC> npc);
         void removeHero(std::shared_ptr<NPC> npc);
         void removeDeadmen();
