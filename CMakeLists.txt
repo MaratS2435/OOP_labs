@@ -1,20 +1,23 @@
 cmake_minimum_required(VERSION 3.10)
-project(lab4)
+project(lab3)
+
+find_package(GTest REQUIRED)
+include_directories(${GTEST_INCLUDE_DIRS} )
+
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/test)
 
 include_directories(${INCLUDE_DIR})
 
-file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false ${TEST_DIR}/*.cpp)
+add_executable(lab4 ./main.cpp )
 
-add_executable(${CMAKE_PROJECT_NAME}_exe main.cpp)
-add_executable(${CMAKE_PROJECT_NAME}_test ${TEST_SOURCES})
+enable_testing()
+add_executable(tests4 ./test/tests.cpp)
+target_link_libraries(tests4 ${GTEST_LIBRARIES})
 
-target_include_directories(${CMAKE_PROJECT_NAME}_test PRIVATE ${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
-target_link_libraries(${CMAKE_PROJECT_NAME}_test PRIVATE gtest gtest_main)
-
-add_test(NAME BASIC COMMAND tests01)
+add_test(NAME BASIC COMMAND tests4)
