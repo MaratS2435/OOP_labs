@@ -11,17 +11,12 @@ bool constructortest() {
     Point p1 {1, 3}, p2 {3, 5}, p3 {5, 3}, p4 {3, 1};
     Figure<double> f1, f2;
     double d {5};
-    std::cout << "1" << std::endl;
+
     Rhomb<int> r1(p1, p2, p3, p4);
-    std::cout << "2" << std::endl;
-    Rhomb<int> r2({1, 3}, {3, 5}, {5, 3}, {3, 1});
-    std::cout << "3" << std::endl;
+    Rhomb<int> r2({1, 3}, {3, 5}, {5, 3}, {3, 1}); 
     Trapezoid<int> t1({2, 1}, {3, 4}, {6, 4}, {7, 1});
-    std::cout << "4" << std::endl;
     Trapezoid<int> t2({9, 4}, {14, 4}, {13, 1}, {10, 1}); //Перенесённый и перевёрнутый
-    std::cout << "5" << std::endl;
     Pentagon<double> pen1({1, 0}, {0.309016994375, 0.951056516295}, {-0.809016994375, 0.587785252292}, {-0.809016994375, -0.587785252292}, {0.309016994375, -0.951056516295});
-    std::cout << "6" << std::endl;
     std::cout << (f1 == f2) << ' ' << (r1 == r2) << ' ' << (t1 == t2) << "\n";
     return (f1 == f2) && (r1 == r2) && (t1 == t2);
 };
@@ -100,6 +95,7 @@ TEST(PointFunc, Distance) {
 TEST(Center, rhomb) {
     Rhomb<int> r({1, 3}, {3, 5}, {5, 3}, {3, 1});
     Point p {3, 3};
+    std::cout << r.center() << std::endl;
     ASSERT_TRUE(r.center() == p);
 }
 

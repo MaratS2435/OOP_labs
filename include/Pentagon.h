@@ -9,11 +9,15 @@ class Pentagon : public Figure<T> {
         Pentagon();
         Pentagon(Point<T> p1, Point<T> p2, Point<T> p3, Point<T> p4, Point<T> p5);
 
+        template <Coord U>
+        friend std::istream& operator>>(std::istream& is, Figure<U>& f);
+
         std::string name() const override;
+        Point<T> center() const override;
 
     protected:
         std::shared_ptr<Point<T>[]> Pts;
-        std::size_t _size;
+        std::size_t _size = 5;
         bool isThisFigure() override;
         operator double() const;
 };
@@ -23,7 +27,9 @@ class Pentagon : public Figure<T> {
 #include <cmath>
 
 template <Coord T>
-Pentagon<T>::Pentagon(): Figure<T>(5,'p') {}
+Pentagon<T>::Pentagon(): Figure<T>(5,'p') {
+    Pts = std::shared_ptr<Point<T>[]>(new Point<T>[4]);
+}
 
 template <Coord T>
 bool Pentagon<T>::isThisFigure() {
@@ -37,6 +43,7 @@ bool Pentagon<T>::isThisFigure() {
 
 template <Coord T>
 Pentagon<T>::Pentagon(Point<T> p1, Point<T> p2, Point<T> p3, Point<T> p4, Point<T> p5): Figure<T>(5,'p') {
+    Pts = std::shared_ptr<Point<T>[]>(new Point<T>[5]);
     Pts[0] = p1;
     Pts[1] = p2;
     Pts[2] = p3;
@@ -61,4 +68,26 @@ Pentagon<T>::operator double() const {
     double s = (sqrt(5) * sqrt(5 + 2 * sqrt(5)) * t) / 4;
 
     return s;
+}
+
+template <Coord T>
+Point<T> Pentagon<T>::center() const{
+    Point<T> p(0, 0);
+    for(int i = 0; i < _size; ++i) {
+        p = p + Pts[i];
+    }
+    p = p / _size;
+    return p;
+}
+
+template <Coord T>
+std::istream& operator>> (std::istream& is, Pentagon<T>& f) {
+    for (int i = 0; i < f._size; ++i) {
+        is >> f.Pts[i].x >> f.Pts[i].y;
+    }
+    std::cout << f << std::endl;
+    if (f.isThisFigure()) {
+        return is;
+    }
+    throw std::invalid_argument("Incorrect figure");
 }

@@ -22,7 +22,7 @@ class Figure {
         template <Coord U>
         friend std::istream& operator>>(std::istream& is, Figure<U>& f);
 
-        Point<T> center() const;
+        virtual Point<T> center() const;
         virtual std::string name() const;
 
 

@@ -9,21 +9,24 @@ class Trapezoid : public Figure<T> {
         Trapezoid();
         Trapezoid(Point<T> p1, Point<T> p2, Point<T> p3, Point<T> p4);
 
-        std::string name() const override;
+        template <Coord U>
+        friend std::istream& operator>>(std::istream& is, Figure<U>& f);
 
-    protected:
-        std::size_t _size;
+        std::string name() const override;
+        Point<T> center() const override;
+
+    
+        std::size_t _size = 4;
         std::shared_ptr<Point<T>[]> Pts;
+
         bool isThisFigure() override;
         operator double() const;
 };
 
-#include <iostream>
-#include <math.h>
-#include "Trapezoid.h"
-
 template <Coord T>
-Trapezoid<T>::Trapezoid(): Figure<T>(4, 't') {}
+Trapezoid<T>::Trapezoid(): Figure<T>(4, 't') {
+    Pts = std::shared_ptr<Point<T>[]>(new Point<T>[4]);
+}
 
 template <Coord T>
 bool Trapezoid<T>::isThisFigure() {
@@ -43,6 +46,7 @@ bool Trapezoid<T>::isThisFigure() {
 
 template <Coord T>
 Trapezoid<T>::Trapezoid(Point<T> p1, Point<T> p2, Point<T> p3, Point<T> p4): Figure<T>(4,'t') {
+    Pts = std::shared_ptr<Point<T>[]>(new Point<T>[4]);
     Pts[0] = p1;
     Pts[1] = p2;
     Pts[2] = p3;
@@ -79,4 +83,24 @@ Trapezoid<T>::operator double() const {
     return s;
 }
 
+template <Coord T>
+Point<T> Trapezoid<T>::center() const{
+    Point<T> p(0, 0);
+    for(int i = 0; i < _size; ++i) {
+        p = p + Pts[i];
+    }
+    p = p / _size;
+    return p;
+}
 
+template <Coord T>
+std::istream& operator>> (std::istream& is, Trapezoid<T>& f) {
+    for (int i = 0; i < f._size; ++i) {
+        is >> f.Pts[i].x >> f.Pts[i].y;
+    }
+    std::cout << f << std::endl;
+    if (f.isThisFigure()) {
+        return is;
+    }
+    throw std::invalid_argument("Incorrect figure");
+}
