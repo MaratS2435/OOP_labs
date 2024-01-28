@@ -1,9 +1,10 @@
 #include <iostream>
 #include "Figure.h"
-#include "ArrFigure.h"
+#include "Array.h"
 #include "Rhomb.h"
 #include "Pentagon.h"
 #include "Trapezoid.h"
+#include "Function.h"
 
 #include <gtest/gtest.h>
 
@@ -95,7 +96,6 @@ TEST(PointFunc, Distance) {
 TEST(Center, rhomb) {
     Rhomb<int> r({1, 3}, {3, 5}, {5, 3}, {3, 1});
     Point p {3, 3};
-    std::cout << r.center() << std::endl;
     ASSERT_TRUE(r.center() == p);
 }
 
@@ -117,12 +117,12 @@ TEST(FigureArray, AddRem) {
     Trapezoid<double> t1({2, 1}, {3, 4}, {6, 4}, {7, 1});
     Trapezoid<double> t2({9, 4}, {14, 4}, {13, 1}, {10, 1}); //Перенесённый и перевёрнутый
     Pentagon<double> p({1, 0}, {0.309016994375, 0.951056516295}, {-0.809016994375, 0.587785252292}, {-0.809016994375, -0.587785252292}, {0.309016994375, -0.951056516295});
-    ArrFigure<double> a;
+    Array<Figure<double>*> a;
     a.Push(&r);
     a.Push(&t1);
     a.Push(&t2);
     a.Push(&p);
-    std::cout << a << std::endl;
+    
     EXPECT_TRUE(a.getsize() == 4);
 
     a.remove(0);
@@ -133,22 +133,24 @@ TEST(FigureArray, SumArea) {
     Rhomb<double> r({1, 3}, {3, 5}, {5, 3}, {3, 1});
     Trapezoid<double> t1({2, 1}, {3, 4}, {6, 4}, {7, 1});
     Trapezoid<double> t2({9, 4}, {14, 4}, {13, 1}, {10, 1}); //Перенесённый и перевёрнутый
-    ArrFigure<double> a;
+    Array<Figure<double>*> a;
     a.Push(&r);
     a.Push(&t1);
     a.Push(&t2);
-    double sum = a.SumArea();
+    double sum = SumArea(a);
+    Areas(a);
     ASSERT_EQ(sum, 32.0);
 }
 
 TEST(FigureArray, AllCenters) {
-    Rhomb<int> r({1, 3}, {3, 5}, {5, 3}, {3, 1});
-    Trapezoid<int> t1({2, 1}, {3, 4}, {6, 4}, {7, 1});
-    Trapezoid<int> t2({9, 4}, {14, 4}, {13, 1}, {10, 1});
-    ArrFigure<int> a;
+    Rhomb<double> r({1, 3}, {3, 5}, {5, 3}, {3, 1});
+    Trapezoid<double> t1({2, 1}, {3, 4}, {6, 4}, {7, 1});
+    Trapezoid<double> t2({9, 4}, {14, 4}, {13, 1}, {10, 1});
+    Array<Figure<double>*> a;
     a.Push(&r);
     a.Push(&t1);
     a.Push(&t2);
+    Centers(a);
 }
 
 int main(int argc, char **argv) {

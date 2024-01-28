@@ -6,27 +6,29 @@
 template <Coord T>
 class Trapezoid : public Figure<T> {
     public:
+        using Figure<T>::Pts;
+        using Figure<T>::_size;
+        using Figure<T>::tag;
+        using Figure<T>::center;
+
         Trapezoid();
         Trapezoid(Point<T> p1, Point<T> p2, Point<T> p3, Point<T> p4);
+        ~Trapezoid() = default;
 
         template <Coord U>
-        friend std::istream& operator>>(std::istream& is, Figure<U>& f);
+        friend std::istream& operator>>(std::istream& is, Trapezoid<U>& f);
+        template <Coord U>
+        friend std::ostream& operator<<(std::ostream& os, const Trapezoid<U>& f);
 
         std::string name() const override;
-        Point<T> center() const override;
-
-    
-        std::size_t _size = 4;
-        std::shared_ptr<Point<T>[]> Pts;
 
         bool isThisFigure() override;
-        operator double() const;
+        operator double() const override;
+
 };
 
 template <Coord T>
-Trapezoid<T>::Trapezoid(): Figure<T>(4, 't') {
-    Pts = std::shared_ptr<Point<T>[]>(new Point<T>[4]);
-}
+Trapezoid<T>::Trapezoid(): Figure<T>(4, 't') {}
 
 template <Coord T>
 bool Trapezoid<T>::isThisFigure() {
@@ -46,15 +48,14 @@ bool Trapezoid<T>::isThisFigure() {
 
 template <Coord T>
 Trapezoid<T>::Trapezoid(Point<T> p1, Point<T> p2, Point<T> p3, Point<T> p4): Figure<T>(4,'t') {
-    Pts = std::shared_ptr<Point<T>[]>(new Point<T>[4]);
-    Pts[0] = p1;
-    Pts[1] = p2;
-    Pts[2] = p3;
-    Pts[3] = p4;
+    Pts.Push(p1);
+    Pts.Push(p2);
+    Pts.Push(p3);
+    Pts.Push(p4);
 
     if (!isThisFigure()) {
         _size = 0;
-        Pts = nullptr;
+        Pts.Arr = nullptr;
         throw std::invalid_argument("Wrong figure: Trapezoid");
     }
 }
@@ -84,23 +85,22 @@ Trapezoid<T>::operator double() const {
 }
 
 template <Coord T>
-Point<T> Trapezoid<T>::center() const{
-    Point<T> p(0, 0);
-    for(int i = 0; i < _size; ++i) {
-        p = p + Pts[i];
-    }
-    p = p / _size;
-    return p;
-}
-
-template <Coord T>
 std::istream& operator>> (std::istream& is, Trapezoid<T>& f) {
     for (int i = 0; i < f._size; ++i) {
-        is >> f.Pts[i].x >> f.Pts[i].y;
+        Point<T> p;
+        is >> p;
+        f.Pts.Push(p);
     }
-    std::cout << f << std::endl;
     if (f.isThisFigure()) {
         return is;
     }
     throw std::invalid_argument("Incorrect figure");
+}
+
+template <Coord T>
+std::ostream& operator<< (std::ostream& os, const Trapezoid<T>& f) {
+    for (int i = 0; i < f._size; ++i) {
+        os << f.Pts[i] << "\n";
+    }
+    return os;
 }

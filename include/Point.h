@@ -7,6 +7,7 @@
 #include <memory>
 #include <type_traits>
 #include <vector>
+#include "Array.h"
 
 template <typename T>
 concept Coord = std::is_default_constructible<T>::value || std::integral<T> || std::floating_point<T>;
@@ -50,7 +51,7 @@ Point<T>::Point(const Point &other) {
 }
 
 template <Coord T>
-Point<T>::Point(Point &&other) {
+Point<T>::Point(Point<T> &&other) {
     x = other.x;
     y = other.y;
 }
@@ -70,7 +71,7 @@ Point<T> Point<T>::operator* (const T &m) const {
 
 template <Coord T>
 Point<T> Point<T>::operator/ (const T &m) const {
-    Point res;
+    Point<T> res;
     res.x = x / m;
     res.y = y / m;
     return res;
@@ -78,7 +79,7 @@ Point<T> Point<T>::operator/ (const T &m) const {
 
 template <Coord T>
 Point<T> Point<T>::operator+ (const Point<T> &other) const{
-    Point res;
+    Point<T> res;
     res.x = x + other.x;
     res.y = y + other.y;
     return res;
@@ -86,7 +87,7 @@ Point<T> Point<T>::operator+ (const Point<T> &other) const{
 
 template <Coord T>
 Point<T> Point<T>::operator- (const Point<T> &other) const {
-    Point res;
+    Point<T> res;
     res.x = x - other.x;
     res.y = y - other.y;
     return res;

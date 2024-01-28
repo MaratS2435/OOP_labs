@@ -6,13 +6,13 @@
 
 template <Coord T>
 class Figure {
-    protected:
-        std::shared_ptr<Point<T>[]> Pts;
-        std::size_t _size;
-        virtual bool isThisFigure();
-        char tag;
-
     public:
+        Array<Point<T>> Pts;
+        std::size_t _size;
+        char tag;
+        virtual bool isThisFigure();
+
+    
         Figure();
         Figure(int n, char t);
         ~Figure() = default;
@@ -25,23 +25,20 @@ class Figure {
         virtual Point<T> center() const;
         virtual std::string name() const;
 
-
-        Figure<T>& operator= (const Figure<T>& other);
-        Figure<T>& operator= (Figure<T>&& other);
+        Figure& operator= (const Figure<T>& other);
+        Figure& operator= (Figure<T>&& other);
         bool operator== (const Figure<T>& other) const;
         virtual operator double() const;
-
 
 };
 
 template <Coord T>
-Figure<T>::Figure(): _size(0), Pts{nullptr}, tag('f') {}
+Figure<T>::Figure(): _size(0), tag('f') {}
 
 template <Coord T>
 Figure<T>::Figure(int n, char t) {
     tag = t;
     _size = n;
-    Pts = std::shared_ptr<Point<T>[]>(new Point<T>[_size]);
 }
 
 template <Coord T>
@@ -57,15 +54,18 @@ std::string Figure<T>::name() const {
 template <Coord T>
 std::ostream& operator<< (std::ostream& os, const Figure<T>& f) {
     for (int i = 0; i < f._size; ++i) {
-        os << '(' << f.Pts[i].x << ';' << f.Pts[i].y << ") \n";
+        os << f.Pts[i] << "\n";
     }
     return os;
 }
 
 template <Coord T>
 std::istream& operator>> (std::istream& is, Figure<T>& f) {
+    
     for (int i = 0; i < f._size; ++i) {
-        is >> f.Pts[i].x >> f.Pts[i].y;
+        Point<T> p;
+        is >> p;
+        f.Pts.Push(p);
     }
     if (f.isThisFigure()) {
         return is;
@@ -97,27 +97,22 @@ bool Figure<T>::operator== (const Figure &other) const {
 
 template <Coord T>
 Figure<T>& Figure<T>::operator= (const Figure &other) {
-    if (other.tag == tag) {
-        _size = other._size;
-        Pts = std::shared_ptr<Point<T>[]>(new Point<T> [_size]);
-        for (int i = 0; i < _size; ++i) {
-            Pts[i] = other.Pts[i];
-        }
-    } else {
-        throw std::underflow_error("Different figures");
-    }
+    tag = other.tag;
+    _size = other._size;
+    Pts = other.Pts;
+
 
     return *this;
 }
 
 template <Coord T>
 Figure<T>& Figure<T>::operator= (Figure<T> &&other) {
+    std::cout << "Bye" << std::endl;
     if (tag != other.tag) {
         throw std::underflow_error("Different figures");
     }
     if (*this != other) {
         _size = other._size;
-        delete [] Pts;
         Pts = other.Pts;
         other.Pts = nullptr;
     }
