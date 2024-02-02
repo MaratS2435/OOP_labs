@@ -22,29 +22,32 @@ TEST(map_test, test_01){
 }
 
 TEST(cotainer_test, test_01){
-    Queue<int, Allocator<int>> q;
+    Queue<int, Allocator<Node<int>>> q;
     q.push(1);
     q.push(2);
     q.push(3);
-    for(int i = 1; i <= q.size(); i++){
+    int i = 1;
+    while (!q.empty()){
         ASSERT_EQ(q.front(), i);
         q.pop();
+        i++;
     }
+    q.push(1);
 }
 
 TEST(cotainer_test, test_02){
-    Queue<int, Allocator<int>> q;
+    Queue<int, Allocator<Node<int>>> q;
     q.push(1);
     q.push(2);
     q.push(3);
-    for(int i = 1; i <= q.size(); i++){
+    while (!q.empty()){
         ASSERT_EQ(q.back(), 3);
         q.pop();
     }
 }
 
 TEST(cotainer_test, test_03){
-    Queue<int, Allocator<int>> q;
+    Queue<int, Allocator<Node<int>>> q;
     q.push(1);
     q.push(2);
     q.push(3);

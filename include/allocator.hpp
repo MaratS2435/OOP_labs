@@ -1,61 +1,95 @@
-#include <iostream>
+#pragma once
+
 #include <array>
+#include <stdexcept>
 
+#define MAX_SIZE 100000
 
-template <class T>
-class Allocator{
-public:
-    static constexpr std::size_t max_count = 332640;
-    using value_type = T;
-    using pointer = T*;
-    using const_pointer = const T*;
-    using size_type = std::size_t;
-    using reference = T&;
-    using const_reference = const T&;
-    template< class U >
-    struct rebind{
-        typedef Allocator<U> other;
-    };
-private:
-    char * buffer;
-    std::array<void *, max_count> chunks;
-    std::array<size_t, 12> chunks_count;
-    const size_t chunk_size = 22720;
-    size_t chunk_start(size_t n){
-        return (n - 1) * chunk_size;
-    }
-public:
-    Allocator(){
-        buffer = (char *)malloc(sizeof(value_type) * max_count);
-        for(size_t i = 0; i < max_count; i++){
-            chunks[i] = buffer + i * sizeof(value_type);
-        }
-        for(size_t i = 0; i < 12; i++){
-            chunks_count[i] = chunk_size / (i + 1);
-        }
-    }
-    ~Allocator(){
-        delete buffer;
-        buffer = nullptr;
-    }
-    pointer allocate(size_t n){
-        pointer res = nullptr;
-        if ((n <= 12) and (chunks_count[n - 1] > 0)){
-            res = (pointer)chunks[chunk_start(n) + chunks_count[n - 1] * n - 1];
-            chunks_count[n - 1]--;
-        }
-        return res;
-    }
-    void deallocate(pointer p, size_t n){
-        chunks[chunk_start(n) + chunks_count[n - 1] * n] = p;
-        p = nullptr;
-        ++chunks_count[n - 1];
-    }
-    template <typename U, typename... Args>
-    void construct(U *p, Args &&...args){
-        new (p) U(std::forward<Args>(args)...);
-    }
-    void destroy(pointer p){
-        p->~T();
-    }
+template<class T>
+class Allocator
+{
+    public:
+        using value_type = T;
+        using pointer = T*;
+        using const_pointer = const T*;
+        using size_type = std::size_t;
+
+    public:
+        template<class U>
+        struct rebind 
+        {
+            using other = Allocator<U>;
+        };
+
+        Allocator();
+        Allocator(const Allocator<T> &other);
+        Allocator(Allocator<T> &&other) noexcept;
+
+        T* allocate(std::size_t n);
+        void deallocate(T *ptr, std::size_t n);
+
+        template<class T1, class ... ARGS>
+        void construct(T1 *p, ARGS... args);
+        void destroy(T* p);
+
+    private:
+        static const size_type max_blocks = MAX_SIZE;
+        size_type count_free_blocks;
+        std::array<T, max_blocks> used_blocks;
+        std::array<T*, max_blocks> free_blocks;
 };
+
+template<class T>
+Allocator<T>::Allocator() 
+{
+    for(std::size_t i = 0; i < MAX_SIZE; ++i) {
+        free_blocks[i] = &used_blocks[i];
+    }
+    count_free_blocks = MAX_SIZE;
+}
+
+template<class T>
+Allocator<T>::Allocator(const Allocator<T> &other) : Allocator<T>()
+{
+    count_free_blocks = other.count_free_blocks;
+    for(std::size_t i = 0; i < MAX_SIZE; ++i) {
+        free_blocks[i] = &used_blocks[i];
+        used_blocks[i] = other.used_blocks;
+    }
+}
+
+template<class T>
+Allocator<T>::Allocator(Allocator<T> &&other) noexcept 
+{
+    count_free_blocks = other.count_free_blocks;
+    free_blocks = std::move(other.free_blocks);
+    used_blocks = std::move(other.used_blocks);
+}
+
+template<class T>
+T* Allocator<T>::allocate(std::size_t n) 
+{
+    if (count_free_blocks - n > MAX_SIZE)
+    {
+        throw std::bad_alloc();
+    }
+    return free_blocks[--count_free_blocks];
+}
+
+template<class T>
+void Allocator<T>::deallocate(T *ptr, std::size_t n) {
+        free_blocks[count_free_blocks++] = ptr;
+} 
+
+template<class T>
+template<class T1, class ... ARGS>
+void Allocator<T>::construct(T1 *p, ARGS... args) 
+{
+    new (p) T1(std::forward<ARGS>(args)...);
+};
+
+template<class T>
+void Allocator<T>::destroy(T* p) 
+{
+    p->~T();
+}

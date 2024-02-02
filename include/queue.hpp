@@ -1,8 +1,19 @@
 #include "allocator.hpp"
 #include <memory>
 
+template <class T>
+class Node{
+    public:
+        Node<T> * next;
+        T value;
+        bool operator!=(const Node<T>& other) const{
+            if (value != other.value) return true;
+            if (next != other.next) return true;
+            return false;
+        }
+};
 
-template <class T, class Allocator = std::allocator<T>>
+template <class T, class Allocator>
 class Queue{
 public:
     using value_type = T;
@@ -12,35 +23,20 @@ public:
     using reference = T&;
     using const_reference = const T&;
 private:    
-    struct Node{
-        Node * prev;
-        Node * next;
-        value_type value;
-        bool operator!=(const Node& other) const{
-            if (value != other.value) return true;
-            if (prev != other.prev) return true;
-            if (next != other.next) return true;
-            return false;
-        }
-    };
+    
 public:
     class Iterator{
-        Node * node;
+    
     public:
         using difference_type = int;
         using value_type = typename Queue<T, Allocator>::value_type;
         using reference = typename Queue<T, Allocator>::reference;
         using pointer = typename Queue<T, Allocator>::pointer;
         using iterator_category = std::forward_iterator_tag;
-        Iterator(Node * n){
+        Iterator(Node<value_type> * n){
             node = n;
         }
         Iterator& operator++() {
-            node = node->prev;
-            return *this;
-        }
-
-        Iterator& operator--() {
             node = node->next;
             return *this;
         }
@@ -62,24 +58,20 @@ public:
             if (this != other) return false;
             return true;
         }
+        private:
+            Node<value_type> * node;
     };
     class ConstIterator{
-        Node * node;
     public:
         using difference_type = int;
         using value_type = typename Queue<T, Allocator>::value_type;
         using reference = const typename Queue<T, Allocator>::reference;
         using pointer = const typename Queue<T, Allocator>::pointer;
         using iterator_category = std::forward_iterator_tag;
-        ConstIterator(Node * n){
+        ConstIterator(Node<value_type> * n){
             node = n;
         }
         ConstIterator& operator++() {
-            node = node->prev;
-            return *this;
-        }
-
-        ConstIterator& operator--() {
             node = node->next;
             return *this;
         }
@@ -101,108 +93,112 @@ public:
             if (this != other) return false;
             return true;
         }
+
+        private:
+
+            Node<value_type> * node;
+
     };
 private:
-    Allocator::template rebind<Node>::other node_alloc;
-    Node * _first, * _last;
-    size_t _size;
+    Allocator node_alloc;
+    Node<value_type> * _head, * _tail;
+    //size_t _size;
 public:
     Queue(){
-        _first = nullptr;
-        _last = nullptr;
-        _size = 0;
+        _head = nullptr;
+        _tail = nullptr;
+        //_size = 0;
     }
+
+    void empty() const{
+        return (_head == nullptr);
+    }
+
     void push(value_type n){
-        if (_first == nullptr){
-            _first = node_alloc.allocate(1);
-            _first->value = n;
-            _first->prev = nullptr;
-        } else if(_first->prev == nullptr){
-            _last = node_alloc.allocate(1);
-            _last->value = n;
-            _last->next = _first;
-            _first->prev = _last;
-        } else{
-            _last->next->prev = node_alloc.allocate(1);
-            _last->next->prev->next = _last->next;
-            _last->next = _last->next->prev;
-            _last->next->prev = _last;
-            _last->next->value = _last->value;
-            _last->value = n;
+        if (empty()) {
+            _head = node_alloc.allocate(1);
+            _head -> value = n;
+            _tail = _head;
+        } else {
+            Node<value_type>* temp = node_alloc.allocate(1);
+            temp -> value = n;
+            _tail -> next = temp;
+            _tail = temp;
+            _tail -> next = nullptr;
         }
-        _size++;
+        //_size++;
     }
     Queue(const Queue & other){
-        _first = nullptr;
-        _last = nullptr;
-        _size = 0;
-        Node * cur_other = other._first;
+        _head = nullptr;
+        _tail = nullptr;
+        //_size = 0;
+        Node<value_type> * cur_other = other._head;
         while(cur_other != nullptr){
             push(cur_other->value);
-            cur_other = cur_other->prev;
+            cur_other = cur_other->next;
         }
     }
     Queue(const std::initializer_list<T> &l){
-        _first = nullptr;
-        _last = nullptr;
-        _size = 0;
+        _head = nullptr;
+        _tail = nullptr;
+        //_size = 0;
         for(value_type el : l){
             push(el);
         }
     }
     Queue(Queue && other){
-        _size = other._size;
-        _first = other._first;
-        _last = other._last;
-        other._size = 0;
-        other._first = nullptr;
-        other._last = nullptr;
+        //_size = other._size;
+        _head = other._head;
+        _tail = other._tail;
+        //other._size = 0;
+        other._head = nullptr;
+        other._tail = nullptr;
     }
+
     ~Queue(){}
+
     value_type front(){
-        if (_first == nullptr){
+        if (_head == nullptr){
             perror("Empty queue!");
             exit(-1);
         }
-        return _first->value;
+        return _head->value;
     } 
     value_type back(){
-        if (_first != nullptr){
-            if (_first->prev == nullptr){
-                return _first->value;
-            }
-            return _last->value;
-        } 
+        if (_tail != nullptr) return _tail->value; 
         perror("Empty queue!");
         exit(-1);
     }
     void pop(){
-        if (_first != nullptr){
-            if (_first->prev == nullptr){
-                node_alloc.deallocate(_first, 1);
-            } else{
-                _first = _first->prev;
-                node_alloc.deallocate(_first->next, 1);
+        if (_head != nullptr){
+            if (_head->next == nullptr){
+                node_alloc.deallocate(_head, 1);
+                _head = nullptr;
+                _tail = nullptr;
+            } else {
+                Node<value_type>* temp = _head;
+                _head = _head->next;
+                node_alloc.deallocate(temp, 1);
             }
-            _size--;
+            //_size--;
         }
     }
-    size_t size(){
+    /*size_t size(){
         return _size;
-    }
+    }*/
     int empty(){
-        return (size == 0);
+        return (_head == nullptr);
     }
     Iterator begin(){
-        return Iterator(_first);
+        return Iterator(_head);
     }
     Iterator end(){
-        return Iterator(_last->prev);
+        return Iterator(_tail->next);
     }
     ConstIterator cbegin() {
-        return ConstIterator(_first);
+        return ConstIterator(_head);
     }
     ConstIterator cend() {
-        return ConstIterator(_last->prev);
+        return ConstIterator(_tail->next);
     }
 };
