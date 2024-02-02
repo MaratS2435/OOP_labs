@@ -57,6 +57,18 @@ TEST(cotainer_test, test_03){
     }
 }
 
+TEST(cotainer_test, test_04){
+    Queue<int, Allocator<Node<int>>> q;
+    q.push(1);
+    q.push(2);
+    q.push(3);
+    int i = 1;
+
+    for(auto el = q.begin(); el != q.end(); ++el){
+        ASSERT_EQ(*el, i++);
+    }
+}
+
 int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
