@@ -18,4 +18,6 @@ enable_testing()
 add_executable(tests5 ./test/test.cpp)
 target_link_libraries(tests5 ${GTEST_LIBRARIES})
 
+add_executable(lab5 ./main.cpp)
+
 add_test(NAME BASIC COMMAND tests5)
