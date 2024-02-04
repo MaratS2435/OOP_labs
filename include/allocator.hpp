@@ -37,6 +37,7 @@ class Allocator
         size_type count_free_blocks;
         std::array<T, max_blocks> used_blocks;
         std::array<T*, max_blocks> free_blocks;
+        T *start, *finish;
 };
 
 template<class T>
@@ -46,6 +47,8 @@ Allocator<T>::Allocator()
         free_blocks[i] = &used_blocks[i];
     }
     count_free_blocks = MAX_SIZE;
+    start = free_blocks[0];
+    finish = free_blocks[MAX_SIZE - 1];
 }
 
 template<class T>
@@ -69,16 +72,21 @@ Allocator<T>::Allocator(Allocator<T> &&other) noexcept
 template<class T>
 T* Allocator<T>::allocate(std::size_t n) 
 {
-    if (count_free_blocks - n > MAX_SIZE)
+    if (count_free_blocks - n < 0)
     {
         throw std::bad_alloc();
     }
-    return free_blocks[--count_free_blocks];
+    count_free_blocks -= n;
+    return free_blocks[count_free_blocks];
 }
 
 template<class T>
 void Allocator<T>::deallocate(T *ptr, std::size_t n) {
-        free_blocks[count_free_blocks++] = ptr;
+    if (start > ptr || finish < ptr + n - 1) {
+        throw std::out_of_range("Bad dealloc");
+    }
+    count_free_blocks += n;
+    free_blocks[count_free_blocks] = ptr;
 } 
 
 template<class T>
