@@ -1,27 +1,34 @@
-#include "bull.hpp"
-#include "dragon.hpp"
-#include "frog.hpp"
+#include "bull.h"
+#include "frog.h"
+#include "dragon.h"
 
-Bull::Bull(int x, int y, std::string name) : NPC(BULL, name, x, y) {}
+Bull::Bull(int x, int y) : NPC(BullType, x, y) {}
+Bull::Bull(std::istream &is) : NPC(BullType, is) {}
 
-Bull::Bull() : NPC(BULL) {}
-
-Bull::~Bull() {}
-
-void Bull::whoami(){
-        std::cout << "Bull" << '\n';
+void Bull::print() {
+    std::cout << *this;
 }
 
-void Bull::defend(std::shared_ptr<NPC> attacker){
-        attacker->attack(this);
+void Bull::print(std::ostream &os) {
+    os << *this;
 }
 
-void Bull::attack(Dragon* defender){
-        notify(defender->getName());
+bool Bull::accept(std::shared_ptr<NPC> visitor) {
+    std::shared_ptr<Bull> self = std::dynamic_pointer_cast<Bull>(shared_from_this());
+    if (!self) {
+         throw std::runtime_error("dynamic_pointer_cast failed");
+    }
+    return visitor -> visit(self);
 }
 
-void Bull::attack(Frog* defender){
-        defender->notify(getName());
+bool Bull::visit(std::shared_ptr<Frog> other)
+{
+    fight_notify(other);
+    return true;
 }
 
-void Bull::attack(Bull * defender){ }
+std::ostream &operator<<(std::ostream &os, Bull &bull)
+{
+    os << "bull: " << *static_cast<NPC *>(&bull) << std::endl;
+    return os;
+}

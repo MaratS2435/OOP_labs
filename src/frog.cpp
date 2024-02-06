@@ -1,25 +1,29 @@
-#include "frog.hpp"
-#include "dragon.hpp"
-#include "bull.hpp"
+#include "frog.h"
+#include "dragon.h"
+#include "bull.h"
 
-Frog::Frog(int x, int y, std::string name) : NPC(FROG, name, x, y) {}
+Frog::Frog(int x, int y) : NPC(FrogType, x, y) {}
+Frog::Frog(std::istream &is) : NPC(FrogType, is) {}
 
-Frog::Frog() : NPC(FROG) {}
-
-Frog::~Frog() {}
-
-void Frog::whoami(){
-        std::cout << "Frog" << '\n';
+void Frog::print() {
+    std::cout << *this;
 }
 
-void Frog::defend(std::shared_ptr<NPC> attacker){
-        attacker->attack(this);
+void Frog::print(std::ostream &os) {
+    os << *this;
 }
 
-void Frog::attack(Dragon* defender){ }
+bool Frog::accept(std::shared_ptr<NPC> visitor)
+{
+    std::shared_ptr<Frog> self = std::dynamic_pointer_cast<Frog>(shared_from_this());
+    if (!self) {
+         throw std::runtime_error("dynamic_pointer_cast failed");
+    }
+    return visitor -> visit(self);
+}
 
-void Frog::attack(Frog* defender){ }
-
-void Frog::attack(Bull * defender){
-        notify(defender->getName());
+std::ostream &operator<<(std::ostream &os, Frog &frog)
+{
+    os << "frog: " << *static_cast<NPC *>(&frog) << std::endl;
+    return os;
 }

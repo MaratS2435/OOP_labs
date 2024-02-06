@@ -1,117 +1,162 @@
-#include "bull.hpp"
-#include "dragon.hpp"
-#include "frog.hpp"
+#include <cstdlib>
+#include <ctime>
+#include <cstring>
+#include "npc.h"
+#include "dragon.h"
+#include "bull.h"
+#include "frog.h"
+#include "observer.h"
+#include "factory.h"
+#include "battle.h"
 
-void printLine(){
-    std::cout << "------------------------------------------------\n"; 
+// save array to file
+void save(const set_t &array, const std::string &filename)
+{
+    std::ofstream fs(filename);
+    fs << array.size() << std::endl;
+    for (auto &n : array)
+        fs << n -> get_type() << std::endl << n -> get_x() << std::endl << n -> get_y() << std::endl;
+    fs.flush();
+    fs.close();
 }
 
-void FightInterface(std::set<std::shared_ptr<NPC>>& creatures, int field[501][501]){
-    int distance;
-    char createSL;
-    std::cout << "Set the attack distance (0 <= distance <= 500): ";
-            std::cin >> distance;
-            printLine();
-            printLine();
-            std::cout << "Fight mode activating...\n";
-            TextObserver textObserver(creatures);
-            FileObserver fileObserver(creatures, "log.txt");
-            std::cout << "Fight mode on.\n";
-            printLine();
-            std::set<std::shared_ptr<NPC>> deadlist = fight(creatures, distance, field);
-            for(auto deadman : deadlist){
-                creatures.erase(deadman);
-            }
-            printLine();
-            std::cout << "Fight mode off.\n";
-            std::cout << "Want to create survivors list? (y/n): \n";
-            std::cin >> createSL;
-            if (createSL == 'y'){
-                std::cout << "Creating survivors list...\n";
-                saveCreatures(creatures, "SurvivorsList.txt");
-                std::cout << "Survivors list created!\n";
-            }
-}
-
-void Interface(){
-    std::set<std::shared_ptr<NPC>> creatures;
-    int field[501][501];
-    for (int i = 0; i < 501; i++){
-        for (int j = 0; j < 501; j++){
-            field[i][j] = 0;
-        }    
-    }
-
-    char input;
-    int emptyField = 1;
-    int programRunning = 1;
-    int distance;
-    char createSL;
-    int quantity;
-
-    printLine();
-    std::cout << "Welcome to the Balagur Fate 3 Dangeon Editor! Enter 'h' for help.\n";
-    printLine();
-    while(programRunning){
-        printLine();
-        std::cout << "> ";
-        std::cin >> input;
-        printLine();
-        printLine();
-        switch (input){
-            case 'h':
-                std::cout << "Editor capabilities:\n";
-                std::cout << "h - help.\n";
-                std::cout << "f - switch on fight mode.\n";
-                std::cout << "g - generate new random creatures.\n";
-                std::cout << "l - load creatures from save.\n";
-                std::cout << "p - print all characters.\n";
-                std::cout << "q - quit\n";
-                break;
-            case 'f':
-                if (emptyField){
-                    std::cout << "Field is empty!\n";
-                    break;
-                }
-                FightInterface(creatures, field);
-                break;
-            case 'g':
-                std::cout << "Enter characters quantity: ";
-                std::cin >> quantity;
-                std::cout << "Generating NPC...\n";
-                generateCreatures(creatures, quantity, field);
-                std::cout << "Generated NPC: " << quantity << ".\n";
-                emptyField = 0;
-                break;
-            case 'l':
-                std::cout << "WARNING! If the coordinates of a saved creature coincide with the coordinates of a creature on the field, it will not be loaded.\n";
-                std::cout << "Loading...\n";
-                loadCreatures(creatures, "saved_creatures.txt", field);
-                std::cout << "Save loaded!\n";
-                emptyField = 0;
-                break;
-            case 'p':
-                std::cout << creatures.size() << " creatures on field!\n";
-                printLine();
-                for (auto creature : creatures){
-                    creature->print(std::cout);
-                }
-                printLine();
-                std::cout << "You can fight them!\n";
-                break;
-            case 'q':
-                std::cout << "See you later!\n";
-                programRunning = 0;
-                break;
-            default:
-                std::cout << "Invalid input!\n";
-                break;
+set_t load(const std::string &filename)
+{
+    set_t result;
+    std::ifstream is(filename);
+    if (is.good() && is.is_open())
+    {
+        int count;
+        if (is >> count && count > 0) {
+            for (int i = 0; i < count; ++i)
+                result.insert(Create(is));
+        } 
+        else
+        {
+            if (count == 0)
+                std::cerr << "Error: File is empty." << std::endl;
+            else
+                std::cerr << "Error: Failed to read count from file." << std::endl;
         }
-        printLine();
+        is.close();
     }
+    else
+        std::cerr << "Error: Something wrong in load" << std::endl;
+    return result;
 }
 
-int main(){
-    Interface();
+// print to screen
+std::ostream &operator<<(std::ostream &os, const set_t &array)
+{
+    for (auto &n : array)
+        os << *n;
+    return os;
+}
+
+int main()
+{
+    std::srand(static_cast<unsigned int>(std::time(nullptr)));
+    set_t array; // монстры
+    std::size_t distance;
+    int choice;
+
+    std::cout << "1 - Generate" << std::endl;
+    std::cout << "2 - Load" << std::endl;
+    std::cout << "Your choice: ";
+    std::cin >> choice;
+
+    switch (choice)
+    {
+    case 1:
+        std::cout << "Generating ..." << std::endl;
+        for (std::size_t i = 0; i < 10; ++i)
+        array.insert(Create(NpcType(std::rand() % 3 + 1),
+                             std::rand() % 501,
+                             std::rand() % 501));
+        break;
+    
+    case 2:
+        std::cout << "Loading ..." << std::endl;
+        array = load("npc.txt");
+        break;
+    }
+
+    std::cout << std::endl;
+    std::cout << "1 - FIGHT!" << std::endl;
+    std::cout << "2 - Save" << std::endl;
+    std::cout << "Your choice: ";
+    std::cin >> choice;
+
+    switch (choice)
+    {
+    case 1:
+
+        break;
+    
+    case 2:
+        std::cout << "Saving ..." << std::endl;
+        save(array, "npc.txt");
+        break;
+    }
+
+    std::cout << "Enter the distance: ";
+    std::cin >> distance;
+
+    
+
+    ObserverConsole observer1;
+    ObserverFile observer2;
+    std::shared_ptr observer11 = std::make_shared<ObserverConsole>(observer1);
+    std::shared_ptr observer22 = std::make_shared<ObserverFile>(observer2);
+
+    for (auto& f: array) {
+        f -> print();
+        f -> subscribe(observer11);
+        f -> subscribe(observer22);
+    }
+    std::cout << std::endl;
+
+    int announce = std::rand() % 5 + 1;
+    switch (announce)
+    {
+    case 1:
+        std::cout << "Good day for a swell battle!" << std::endl;
+        break;
+    
+    case 2:
+        std::cout << "This match will get red hot!" << std::endl;
+        break;
+
+    case 3:
+        std::cout << "Here's a real high-class bout!" << std::endl;
+        break;
+
+    case 4:
+        std::cout << "A great slam and then some!" << std::endl;
+        break;
+
+    case 5:
+        std::cout << "A brawl is surely brewing!" << std::endl;
+        break;
+
+    }
+
+    std::cout << std::endl;
+    std::cout << "And begin!" << std::endl ;
+
+        auto dead_list = battle(array, distance);
+        for (auto &d : dead_list)
+            array.erase(d);
+        std::cout << "Fight stats ----------" << std::endl
+                  << "distance: " << distance << std::endl
+                  << "killed: " << dead_list.size() << std::endl
+                  << std::endl << std::endl;
+
+
+    std::cout << "Survivors:" << std::endl;
+    for (auto& f: array) {
+        f -> print();
+    }
+
     return 0;
 }
