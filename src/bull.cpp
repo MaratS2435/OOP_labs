@@ -1,9 +1,33 @@
-#include "bull.h"
-#include "frog.h"
-#include "dragon.h"
+#include "../include/bull.h"
 
 Bull::Bull(int x, int y) : NPC(BullType, x, y) {}
-Bull::Bull(std::istream &is) : NPC(BullType, is) {}
+
+Bull::Bull(std::istream& is) : NPC(BullType, is) {}
+
+int Bull::getDistMove()
+{
+    return dist_move;
+}
+
+int Bull::getDistFight()
+{
+    return dist_fight;
+}
+
+bool Bull::accept(std::shared_ptr<NPC> visitor) 
+{
+    return visitor->visit(std::shared_ptr<Bull>(this,[](Bull*){}));
+}
+
+bool Bull::visit(std::shared_ptr<Frog> monster) 
+{
+    if (win()) 
+    {
+        notify(std::shared_ptr<Bull>(this,[](Bull*){}), monster);
+        return true;
+    }
+    return false;
+}
 
 void Bull::print() {
     std::cout << *this;
@@ -11,24 +35,4 @@ void Bull::print() {
 
 void Bull::print(std::ostream &os) {
     os << *this;
-}
-
-bool Bull::accept(std::shared_ptr<NPC> visitor) {
-    std::shared_ptr<Bull> self = std::dynamic_pointer_cast<Bull>(shared_from_this());
-    if (!self) {
-         throw std::runtime_error("dynamic_pointer_cast failed");
-    }
-    return visitor -> visit(self);
-}
-
-bool Bull::visit(std::shared_ptr<Frog> other)
-{
-    fight_notify(other);
-    return true;
-}
-
-std::ostream &operator<<(std::ostream &os, Bull &bull)
-{
-    os << "bull: " << *static_cast<NPC *>(&bull) << std::endl;
-    return os;
 }

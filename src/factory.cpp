@@ -1,35 +1,43 @@
 #include "factory.h"
 
-std::shared_ptr<NPC> Create(NpcType type, int x, int y) {
-    std::shared_ptr<NPC> hero;
-    switch (type) {
-        case DragonType:
-            hero = std::make_shared<Dragon>(x, y);
+std::shared_ptr<NPC> factory(NpcType type, int x, int y)
+{
+    switch (type)
+    {
+        case DragonType :
+            return std::make_shared<Dragon>(x, y);
             break;
-        case BullType:
-            hero = std::make_shared<Bull>(x, y);
+        case BullType :
+            return std::make_shared<Bull>(x, y);
             break;
-        case FrogType:
-            hero = std::make_shared<Frog>(x, y);
+        case FrogType :
+            return std::make_shared<Frog>(x, y);
+            break;
+        default:
+            std::cout << "unexpected type : " << type << std::endl;
             break;
     }
-    return hero;
+    return nullptr;
 }
 
-std::shared_ptr<NPC> Create(std::istream& stream) {
-    std::shared_ptr<NPC> hero;
+std::shared_ptr<NPC> factory(std::istream &is)
+{
     int type;
-    stream >> type;
-    switch(type) {
-        case DragonType:
-            hero = std::make_shared<Dragon>(stream);
+    is >> type;
+    switch (type)
+    {
+        case DragonType :
+            return std::make_shared<Dragon>(is);
             break;
-        case BullType:
-            hero = std::make_shared<Bull>(stream);
+        case BullType :
+            return std::make_shared<Bull>(is);
             break;
-        case FrogType:
-            hero = std::make_shared<Frog>(stream);
+        case FrogType :
+            return std::make_shared<Frog>(is);
+            break;
+        default:
+            std::cout << "unexpected type : " << type << std::endl;
             break;
     }
-    return hero;
+    return nullptr;
 }

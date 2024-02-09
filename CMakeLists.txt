@@ -1,24 +1,25 @@
 cmake_minimum_required(VERSION 3.10)
-project(lab6)
+project(lab_07)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
-set(TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/test)
 
+find_package(GTest REQUIRED)
 include_directories(${INCLUDE_DIR})
 
 file(GLOB_RECURSE SOURCES LIST_DIRECTORIES false ${SOURCE_DIR}/*.cpp)
-file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false ${TEST_DIR}/*.cpp)
 
-add_library(${CMAKE_PROJECT_NAME}_lib ${SOURCES})
-add_executable(${CMAKE_PROJECT_NAME}_exe main.cpp)
-add_executable(${CMAKE_PROJECT_NAME}_test ${TEST_SOURCES})
+add_library(lab_07_lib ${SOURCES})
+add_executable(main main.cpp)
 
-target_link_libraries(${CMAKE_PROJECT_NAME}_exe PRIVATE ${CMAKE_PROJECT_NAME}_lib)
-target_include_directories(${CMAKE_PROJECT_NAME}_test PRIVATE ${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
-target_link_libraries(${CMAKE_PROJECT_NAME}_test PRIVATE ${CMAKE_PROJECT_NAME}_lib gtest gtest_main)
+target_link_libraries(main PRIVATE lab_07_lib)
 
-add_test(NAME BASIC COMMAND tests01)
+enable_testing()
+
+add_executable(tests test1.cpp ${SOURCES})
+target_link_libraries(tests ${GTEST_LIBRARIES})
+
+add_test(NAME BASIC COMMAND tests)

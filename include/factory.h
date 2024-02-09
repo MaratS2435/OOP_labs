@@ -5,6 +5,5 @@
 #include "bull.h"
 #include "frog.h"
 
-std::shared_ptr<NPC> Create(NpcType type, int x, int y);
-
-std::shared_ptr<NPC> Create(std::istream& stream);
+std::shared_ptr<NPC> factory(std::istream &is);
+std::shared_ptr<NPC> factory(NpcType type, int x, int y);

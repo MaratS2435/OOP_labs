@@ -1,59 +1,51 @@
 #pragma once
 
-#include <iostream>
-#include <memory>
-#include <cstring>
-#include <string>
-#include <random>
-#include <fstream>
-#include <set>
-#include <math.h>
-
-// type for npcs
-class NPC;
-class Dragon;
-class Bull;
-class Frog;
-class Observer;
-class ObserverConsole;
-class ObserverFile;
-using set_t = std::set<std::shared_ptr<NPC>>;
-
-enum NpcType
-{
-    Unknown = 0,
-    DragonType = 1,
-    BullType = 2,
-    FrogType = 3
-};
+#include "declaration.h"
+#include "observer.h"
 
 class NPC : public std::enable_shared_from_this<NPC>
 {
-    private:
-        NpcType type;
-        int x{0};
-        int y{0};
-        std::vector<std::shared_ptr<Observer>> observers;
-
     public:
+        NPC(NpcType _type, int _x, int _y);
+        NPC(NpcType _type, std::istream& is);
+        virtual ~NPC() = default;
 
-        NPC(NpcType t, int _x, int _y);
-        NPC(NpcType t, std::istream &is);
-        ~NPC() = default;
+        std::string getName();
+        std::string getType();
+        int getIntType();
+        virtual int getDistMove() = 0;
+        virtual int getDistFight() = 0;
+        bool isAlive();
+        void must_die();
+        bool isClose(const std::shared_ptr<NPC> &other);
+        std::pair <int, int> position();
+        float distance(const std::shared_ptr<NPC> &other);
+        void move(int shift_x, int shift_y, int max_x, int max_y);
+        bool win();
 
-        int get_x() const;
-        int get_y() const;
-        NpcType get_type() const;
+        virtual bool accept(std::shared_ptr<NPC> visitor) = 0;
+        virtual bool visit(std::shared_ptr<Dragon> monster);
+        virtual bool visit(std::shared_ptr<Bull> monster);
+        virtual bool visit(std::shared_ptr<Frog> monster);
+
+        std::size_t countObservers() const;
         void subscribe(std::shared_ptr<Observer> observer);
-        void fight_notify(const std::shared_ptr<NPC> defender);
-        virtual bool is_close(const std::shared_ptr<NPC> &other, std::size_t distance) const;
+        void unsubscribe(std::shared_ptr<Observer> observer);
+        void notify(std::shared_ptr<NPC> attacker, std::shared_ptr<NPC> defender) const;
+
         virtual void print() = 0;
         virtual void print(std::ostream &os) = 0;
 
-        virtual bool accept(std::shared_ptr<NPC> visitor) = 0;
-        virtual bool visit(std::shared_ptr<Dragon> other);
-        virtual bool visit(std::shared_ptr<Bull> other);
-        virtual bool visit(std::shared_ptr<Frog> other);
+        friend std::ostream &operator<<(std::ostream &os, NPC &npc);
 
-    friend std::ostream &operator<<(std::ostream &os, NPC &npc);
+    protected:
+        std::mutex mtx;
+
+        NpcType type;
+        int x;
+        int y;
+        int dist_move;
+        int dist_fight;
+        bool alive;
+        std::set<std::shared_ptr<Observer>> observers;
 };

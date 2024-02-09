@@ -1,20 +1,26 @@
 #pragma once
+
 #include "npc.h"
 #include "dragon.h"
 #include "frog.h"
-#include "observer.h"
-
 
 class Bull : public NPC
 {
     public:
         Bull(int x, int y);
-        Bull(std::istream &is);
+        Bull(std::istream& is);
+        virtual ~Bull() = default;
+
+        int getDistMove() override;
+        int getDistFight() override;
 
         bool accept(std::shared_ptr<NPC> visitor) override;
-        bool visit(std::shared_ptr<Frog> other) override;
+        bool visit(std::shared_ptr<Frog> monster) override;
+
         void print() override;
         void print(std::ostream &os) override;
 
-    friend std::ostream &operator<<(std::ostream &os, Bull &bull);
+    protected:
+        int dist_move = 30;
+        int dist_fight = 10;
 };
