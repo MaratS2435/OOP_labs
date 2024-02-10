@@ -8,6 +8,12 @@
 #include "factory.h"
 #include "battle.h"
 
+std::unordered_map<NpcType, std::shared_ptr<Visitor>> visitors = {
+        {DragonType, std::make_shared<DragonVisitor>()},
+        {BullType, std::make_shared<BullVisitor>()},
+        {FrogType, std::make_shared<FrogVisitor>()}
+};
+
 
 TEST(Test_Dragon, Constructor) {
     std::string name {"default"};
@@ -22,7 +28,7 @@ TEST(Test_Dragon, FightBull)
     std::shared_ptr<Bull> bull = std::make_shared<Bull>(name, 1, 2);
 
     
-    EXPECT_TRUE(bull -> accept(dragon) == true);
+    EXPECT_TRUE(bull -> accept(visitors[dragon -> get_type()], dragon) == true);
 }
 
 TEST(Test_Dragon, FightDragonFrog){
@@ -30,8 +36,8 @@ TEST(Test_Dragon, FightDragonFrog){
     std::shared_ptr<Dragon> dragon1 = std::make_shared<Dragon>(name, 1, 1);
     std::shared_ptr<Dragon> dragon2 = std::make_shared<Dragon>(name, 1, 2);
     std::shared_ptr<Frog> frog = std::make_shared<Frog>(name, 2, 1);
-    ASSERT_EQ(dragon2 -> accept(dragon1), false);
-    ASSERT_EQ(frog -> accept(dragon1), false);
+    ASSERT_EQ(dragon2 -> accept(visitors[dragon1 -> get_type()], dragon1), false);
+    ASSERT_EQ(frog -> accept(visitors[dragon1 -> get_type()], dragon1), false);
 }
 
 TEST(Test_Bull, Constr)
@@ -46,7 +52,7 @@ TEST(Test_Bull, FightFrog)
     std::string name {"default"};
     std::shared_ptr<Bull> bull = std::make_shared<Bull>(name, 1, 2);
     std::shared_ptr<Frog> frog = std::make_shared<Frog>(name, 2, 1);
-    EXPECT_TRUE(frog -> accept(bull) == true);
+    EXPECT_TRUE(frog -> accept(visitors[bull -> get_type()], bull) == true);
 }
 
 TEST(Test_Bull, FightDragonBull) {
@@ -55,7 +61,7 @@ TEST(Test_Bull, FightDragonBull) {
     std::shared_ptr<Bull> bull2 = std::make_shared<Bull>(name, 1, 3);
     std::shared_ptr<Dragon> dragon = std::make_shared<Dragon>(name, 1, 1);
 
-    EXPECT_TRUE(bull2 -> accept(bull1) == false and dragon -> accept(bull1) == false);
+    EXPECT_TRUE(bull2 -> accept(visitors[bull1 -> get_type()], bull1) == false and dragon -> accept(visitors[bull1 -> get_type()], bull1) == false);
 }
 
 TEST(Test_Frog, Constr) {
@@ -70,9 +76,9 @@ TEST(Test_Frog, FightAll) {
     std::shared_ptr<Frog> frog2 = std::make_shared<Frog>(name, 2, 1);
     std::shared_ptr<Bull> bull = std::make_shared<Bull>(name, 1, 2);
     std::shared_ptr<Dragon> dragon = std::make_shared<Dragon>(name, 1, 1);
-    EXPECT_TRUE(frog2 -> accept(frog1) == false and
-                bull -> accept(frog1) == false and
-                dragon -> accept(frog1) == false);
+    EXPECT_TRUE(frog2 -> accept(visitors[frog1 -> get_type()], frog1) == false and
+                bull -> accept(visitors[frog1 -> get_type()], frog1) == false and
+                dragon -> accept(visitors[frog1 -> get_type()], frog1) == false);
 }
 
 TEST(Test_NPC, Distance) {
@@ -91,7 +97,7 @@ TEST(Test_NPC, InsertObservers) {
     std::shared_ptr observer1 = std::make_shared<ObserverConsole>(observer);
     bull -> subscribe(observer1);
     frog -> subscribe(observer1);
-    EXPECT_TRUE(frog -> accept(bull) == true);
+    EXPECT_TRUE(frog -> accept(visitors[bull -> get_type()], bull) == true);
 }
 
 TEST(Test_Factory, CreateNPC) {

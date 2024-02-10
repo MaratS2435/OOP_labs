@@ -5,7 +5,7 @@
 #include "bull.h"
 #include "frog.h"
 
-std::string randname(int x);
+std::string randname();
 
 std::shared_ptr<NPC> Create(NpcType type, std::string name, int x, int y);
 

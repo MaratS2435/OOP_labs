@@ -13,12 +13,14 @@ void Frog::print(std::ostream &os) {
     os << *this;
 }
 
-bool Frog::accept(std::shared_ptr<NPC> visitor)
+bool Frog::accept(std::shared_ptr<Visitor>& visitor, std::shared_ptr<NPC> attacker)
 {
     std::shared_ptr<Frog> self = std::dynamic_pointer_cast<Frog>(shared_from_this());
     if (!self) {
          throw std::runtime_error("dynamic_pointer_cast failed");
     }
+    if (visitor -> visit(self)) 
+        attacker -> fight_notify(self);
     return visitor -> visit(self);
 }
 

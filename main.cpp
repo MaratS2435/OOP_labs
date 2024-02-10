@@ -71,9 +71,9 @@ int main()
         std::cout << "Generating ..." << std::endl;
         for (std::size_t i = 0; i < 10; ++i)
         array.insert(Create(NpcType(std::rand() % 3 + 1),
-                             randname(std::rand() % 5 + 1),
-                             std::rand() % 501,
-                             std::rand() % 501));
+                                    randname(),
+                                    std::rand() % 501,
+                                    std::rand() % 501));
         break;
     
     case 2:
@@ -102,32 +102,15 @@ int main()
 
     std::cout << std::endl;
 
-    int announce = std::rand() % 5 + 1;
-    switch (announce)
-    {
-    case 1:
-        std::cout << "Good day for a swell battle!" << std::endl;
-        break;
+    std::map<int,std::string> announce;
+    announce.insert({0, "Good day for a swell battle!"});
+    announce.insert({1, "This match will get red hot!"});
+    announce.insert({2, "Here's a real high-class bout!"});
+    announce.insert({3, "A great slam and then some!"});
+    announce.insert({4, "A brawl is surely brewing!"});
+
+    std::cout << announce[std::rand() % 5] << std::endl << std::endl;
     
-    case 2:
-        std::cout << "This match will get red hot!" << std::endl;
-        break;
-
-    case 3:
-        std::cout << "Here's a real high-class bout!" << std::endl;
-        break;
-
-    case 4:
-        std::cout << "A great slam and then some!" << std::endl;
-        break;
-
-    case 5:
-        std::cout << "A brawl is surely brewing!" << std::endl;
-        break;
-
-    }
-    std::cout << std::endl;
-
     std::cout << "Enter the distance: ";
     std::cin >> distance;
 

@@ -43,15 +43,15 @@ bool NPC::is_close(const std::shared_ptr<NPC> &other, std::size_t distance) cons
         return false;
 }
 
-bool NPC::visit(std::shared_ptr<Dragon> other) {
+bool Visitor::visit(const std::shared_ptr<Dragon>& other) {
     return false;
 }
 
-bool NPC::visit(std::shared_ptr<Bull> other) {
+bool Visitor::visit(const std::shared_ptr<Bull>& other) {
     return false;
 }
 
-bool NPC::visit(std::shared_ptr<Frog> other) {
+bool Visitor::visit(const std::shared_ptr<Frog>& other) {
     return false;
 }
 

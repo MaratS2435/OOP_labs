@@ -1,5 +1,6 @@
 #include "factory.h"
 
+
 std::shared_ptr<NPC> Create(NpcType type, std::string name, int x, int y) {
     std::shared_ptr<NPC> hero;
     switch (type) {
@@ -34,27 +35,13 @@ std::shared_ptr<NPC> Create(std::istream& stream) {
     return hero;
 }
 
-std::string randname(int x) {
-    switch (x)
-    {
-    case 1:
-        return "Oleg";
-        break;
-    case 2:
-        return "Vova";
-        break;
-    case 3:
-        return "Dima";
-        break;
-    case 4:
-        return "Misha";
-        break;
-    case 5:
-        return "Kolya";
-        break;
-    
-    default:
-        return "Noname";
-        break;
-    }
+std::string randname() {
+    std::map<int,std::string> name;
+        name.insert({0, "Oleg"});
+        name.insert({1, "Vova"});
+        name.insert({2, "Dima"});
+        name.insert({3, "Misha"});
+        name.insert({4, "Kolya"});
+
+    return name[std::rand() % 5];
 }

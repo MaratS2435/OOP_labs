@@ -8,6 +8,8 @@
 #include <fstream>
 #include <set>
 #include <math.h>
+#include <map>
+#include <unordered_map>
 
 // type for npcs
 class NPC;
@@ -25,6 +27,12 @@ enum NpcType
     DragonType = 1,
     BullType = 2,
     FrogType = 3
+};
+
+struct Visitor {
+    virtual bool visit(const std::shared_ptr<Dragon>&);
+    virtual bool visit(const std::shared_ptr<Bull>&);
+    virtual bool visit(const std::shared_ptr<Frog>&);
 };
 
 class NPC : public std::enable_shared_from_this<NPC>
@@ -52,10 +60,7 @@ class NPC : public std::enable_shared_from_this<NPC>
         virtual void print() = 0;
         virtual void print(std::ostream &os) = 0;
 
-        virtual bool accept(std::shared_ptr<NPC> visitor) = 0;
-        virtual bool visit(std::shared_ptr<Dragon> other);
-        virtual bool visit(std::shared_ptr<Bull> other);
-        virtual bool visit(std::shared_ptr<Frog> other);
+        virtual bool accept(std::shared_ptr<Visitor>& visitor, std::shared_ptr<NPC> attacker) = 0;
 
     friend std::ostream &operator<<(std::ostream &os, NPC &npc);
 };

@@ -4,6 +4,9 @@
 #include "frog.h"
 #include "observer.h"
 
+class BullVisitor : public Visitor {
+    bool visit(const std::shared_ptr<Frog>& other) override;
+};
 
 class Bull : public NPC
 {
@@ -11,8 +14,7 @@ class Bull : public NPC
         Bull(std::string name, int x, int y);
         Bull(std::istream &is);
 
-        bool accept(std::shared_ptr<NPC> visitor) override;
-        bool visit(std::shared_ptr<Frog> other) override;
+        bool accept(std::shared_ptr<Visitor>& visitor, std::shared_ptr<NPC> attacker) override;
         void print() override;
         void print(std::ostream &os) override;
 
