@@ -7,7 +7,7 @@
 
 class Dragon : public NPC
 {   public:
-        Dragon(int x, int y);
+        Dragon(std::string name, int x, int y);
         Dragon(std::istream &is);
 
         bool accept(std::shared_ptr<NPC> visitor) override;

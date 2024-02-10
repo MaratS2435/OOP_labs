@@ -31,19 +31,21 @@ class NPC : public std::enable_shared_from_this<NPC>
 {
     private:
         NpcType type;
+        std::string _name;
         int x{0};
         int y{0};
         std::vector<std::shared_ptr<Observer>> observers;
 
     public:
 
-        NPC(NpcType t, int _x, int _y);
+        NPC(NpcType t, std::string name, int _x, int _y);
         NPC(NpcType t, std::istream &is);
         ~NPC() = default;
 
         int get_x() const;
         int get_y() const;
         NpcType get_type() const;
+        std::string get_name() const;
         void subscribe(std::shared_ptr<Observer> observer);
         void fight_notify(const std::shared_ptr<NPC> defender);
         virtual bool is_close(const std::shared_ptr<NPC> &other, std::size_t distance) const;

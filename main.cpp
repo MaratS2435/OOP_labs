@@ -15,7 +15,7 @@ void save(const set_t &array, const std::string &filename)
     std::ofstream fs(filename);
     fs << array.size() << std::endl;
     for (auto &n : array)
-        fs << n -> get_type() << std::endl << n -> get_x() << std::endl << n -> get_y() << std::endl;
+        fs << n -> get_type() << std::endl << n -> get_name() << std::endl << n -> get_x() << std::endl << n -> get_y() << std::endl;
     fs.flush();
     fs.close();
 }
@@ -71,6 +71,7 @@ int main()
         std::cout << "Generating ..." << std::endl;
         for (std::size_t i = 0; i < 10; ++i)
         array.insert(Create(NpcType(std::rand() % 3 + 1),
+                             randname(std::rand() % 5 + 1),
                              std::rand() % 501,
                              std::rand() % 501));
         break;
@@ -99,21 +100,6 @@ int main()
         break;
     }
 
-    std::cout << "Enter the distance: ";
-    std::cin >> distance;
-
-    
-
-    ObserverConsole observer1;
-    ObserverFile observer2;
-    std::shared_ptr observer11 = std::make_shared<ObserverConsole>(observer1);
-    std::shared_ptr observer22 = std::make_shared<ObserverFile>(observer2);
-
-    for (auto& f: array) {
-        f -> print();
-        f -> subscribe(observer11);
-        f -> subscribe(observer22);
-    }
     std::cout << std::endl;
 
     int announce = std::rand() % 5 + 1;
@@ -139,6 +125,23 @@ int main()
         std::cout << "A brawl is surely brewing!" << std::endl;
         break;
 
+    }
+    std::cout << std::endl;
+
+    std::cout << "Enter the distance: ";
+    std::cin >> distance;
+
+    
+
+    ObserverConsole observer1;
+    ObserverFile observer2;
+    std::shared_ptr observer11 = std::make_shared<ObserverConsole>(observer1);
+    std::shared_ptr observer22 = std::make_shared<ObserverFile>(observer2);
+
+    for (auto& f: array) {
+        f -> print();
+        f -> subscribe(observer11);
+        f -> subscribe(observer22);
     }
 
     std::cout << std::endl;

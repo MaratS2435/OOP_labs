@@ -5,6 +5,8 @@
 #include "bull.h"
 #include "frog.h"
 
-std::shared_ptr<NPC> Create(NpcType type, int x, int y);
+std::string randname(int x);
+
+std::shared_ptr<NPC> Create(NpcType type, std::string name, int x, int y);
 
 std::shared_ptr<NPC> Create(std::istream& stream);

@@ -8,7 +8,7 @@
 class Frog : public NPC
 {
     public:
-        Frog(int x, int y);
+        Frog(std::string name, int x, int y);
         Frog(std::istream &is);
 
         bool accept(std::shared_ptr<NPC> visitor) override;

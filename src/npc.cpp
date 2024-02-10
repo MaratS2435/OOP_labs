@@ -1,11 +1,16 @@
 #include "npc.h"
 #include "observer.h"
 
-NPC::NPC(NpcType t, int _x, int _y) : type(t), x(_x), y(_y) {}
+NPC::NPC(NpcType t, std::string name, int _x, int _y) : type(t), _name(name), x(_x), y(_y) {}
 NPC::NPC(NpcType t, std::istream &is) : type(t)
 {
+    is >> _name;
     is >> x;
     is >> y;
+}
+
+std::string NPC::get_name() const{
+    return _name;
 }
 
 int NPC::get_x() const {

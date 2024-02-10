@@ -2,7 +2,7 @@
 #include "dragon.h"
 #include "bull.h"
 
-Frog::Frog(int x, int y) : NPC(FrogType, x, y) {}
+Frog::Frog(std::string name, int x, int y) : NPC(FrogType, name, x, y) {}
 Frog::Frog(std::istream &is) : NPC(FrogType, is) {}
 
 void Frog::print() {
@@ -24,6 +24,6 @@ bool Frog::accept(std::shared_ptr<NPC> visitor)
 
 std::ostream &operator<<(std::ostream &os, Frog &frog)
 {
-    os << "frog: " << *static_cast<NPC *>(&frog) << std::endl;
+    os << "frog " << frog.get_name() << ": " << *static_cast<NPC *>(&frog) << std::endl;
     return os;
 }

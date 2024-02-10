@@ -8,7 +8,7 @@
 class Bull : public NPC
 {
     public:
-        Bull(int x, int y);
+        Bull(std::string name, int x, int y);
         Bull(std::istream &is);
 
         bool accept(std::shared_ptr<NPC> visitor) override;
