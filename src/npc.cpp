@@ -11,7 +11,7 @@ NPC::NPC(NpcType _type, std::istream& is) : type(_type), alive(true)
 
 std::string NPC::getType()
 {
-    std::lock_guard<std::mutex> lck(mtx);
+    //std::lock_guard<std::mutex> lck(mtx);
     switch (type)
     {
     case 1 :
@@ -31,19 +31,19 @@ std::string NPC::getType()
 
 int NPC::getIntType()
 {
-    std::lock_guard<std::mutex> lck(mtx);
+    //std::lock_guard<std::mutex> lck(mtx);
     return type;
 }
 
 bool NPC::isAlive()
 {
-    std::lock_guard<std::mutex> lck(mtx);
+    //std::lock_guard<std::mutex> lck(mtx);
     return alive;
 }
 
 void NPC::must_die()
 {
-    std::lock_guard<std::mutex> lck(mtx);
+    //std::lock_guard<std::mutex> lck(mtx);
     alive = false;
 }
 
@@ -52,7 +52,7 @@ bool NPC::isClose(const std::shared_ptr<NPC> &other)
     auto [other_x, other_y] = other->position();
     float dist = this->distance(other);
 
-    std::lock_guard<std::mutex> lck(mtx);
+    //std::lock_guard<std::mutex> lck(mtx);
     if (dist <= this->getDistFight())
         return true;
     else
@@ -61,19 +61,19 @@ bool NPC::isClose(const std::shared_ptr<NPC> &other)
 
 std::pair <int, int> NPC::position()
 {
-    std::lock_guard<std::mutex> lck(mtx);
+    //std::lock_guard<std::mutex> lck(mtx);
     return std::pair <int, int> {x, y};
 }
 
 float NPC::distance(const std::shared_ptr<NPC> &other)
 {
-    std::lock_guard<std::mutex> lck(mtx);
+    //std::lock_guard<std::mutex> lck(mtx);
     return sqrt(pow((x - other->x), 2) + pow((y - other->y), 2));
 }
 
 void NPC::move(int shift_x, int shift_y, int max_x, int max_y)
 {
-    std::lock_guard<std::mutex> lck(mtx);
+    //std::lock_guard<std::mutex> lck(mtx);
     if ((x + shift_x >= 0) && (x + shift_x <= max_x))
         x += shift_x;
     if ((y + shift_y >= 0) && (y + shift_y <= max_y))
@@ -116,7 +116,7 @@ void NPC::subscribe(std::shared_ptr<Observer> observer)
 
 void NPC::unsubscribe(std::shared_ptr<Observer> observer)
 {
-    std::lock_guard<std::shared_mutex> lck(print_mutex);
+    //std::lock_guard<std::shared_mutex> lck(print_mutex);
     std::cout << observers.size() << std::endl;
     observers.erase(observer);
     std::cout << observers.size() << std::endl;

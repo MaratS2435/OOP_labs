@@ -8,10 +8,14 @@
 #include "factory.h"
 #include "fight.h"
 
+std::mutex mtx;
+
 int main()
 {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
+
     
+
     std::set<std::shared_ptr<NPC>> array; // монстры
 
     int n = 1;
@@ -36,91 +40,93 @@ int main()
     const int MAX_Y{100};
     bool stop = false;
 
-    std::thread fight_thread(std::ref(FightManager::get()));
+    std::thread fight_thread(std::ref(FightManager::get(&mtx)));
 
-    std::thread move_thread([&array, MAX_X, MAX_Y, &stop]()
+    std::thread move_thread([&array, &MAX_X, &MAX_Y, &stop]()
     {
         time_t start_time = time(0);
 
-        while (true)
+        while (time(0) - start_time <= STOP)
         {
-            if (time(0) - start_time > STOP) 
             {
-                stop = true;
-                break;
+                std::lock_guard<std::mutex> lock(mtx);
+                for (std::shared_ptr<NPC> npc : array)
+                {
+                        if(npc->isAlive()){
+                            int distMove = npc->getDistMove();
+                            int shift_x = (std::rand() % distMove) * (std::rand() % 3 - 1);
+                            int shift_y;
+                            if (shift_x >= 0) shift_y = (distMove - shift_x) * (std::rand() % 3 - 1);
+                            else shift_y = (distMove + shift_x) * (std::rand() % 3 - 1);
+                            npc->move(shift_x, shift_y, MAX_X, MAX_Y);
+                        }
+                }
+                for (std::shared_ptr<NPC> npc : array)
+                    for (std::shared_ptr<NPC> other : array)
+                        if (other != npc)
+                            if (npc->isAlive())
+                            if (other->isAlive())
+                            if (npc->isClose(other)){
+                                FightManager::get(&mtx).add_event({npc, other});
+                            }
+                
             }
-            for (std::shared_ptr<NPC> npc : array)
-            {
-                    if(npc->isAlive()){
-                        int distMove = npc->getDistMove();
-                        int shift_x = (std::rand() % distMove) * (std::rand() % 3 - 1);
-                        int shift_y;
-                        if (shift_x >= 0) shift_y = (distMove - shift_x) * (std::rand() % 3 - 1);
-                        else shift_y = (distMove + shift_x) * (std::rand() % 3 - 1);
-                        npc->move(shift_x, shift_y, MAX_X, MAX_Y);
-                    }
-            }
-            
-            for (std::shared_ptr<NPC> npc : array)
-                for (std::shared_ptr<NPC> other : array)
-                    if (other != npc)
-                        if (npc->isAlive())
-                        if (other->isAlive())
-                        if (npc->isClose(other))
-                            FightManager::get().add_event({npc, other});
-
             std::this_thread::sleep_for(30ms);
         }
+        
+        stop = true;
     });
 
     while (true)
     {
         if (stop) break;
 
-        const int grid{20}, step_x{MAX_X / grid}, step_y{MAX_Y / grid};
-        
-        std::array<char, grid * grid> fields{0};
-        for (std::shared_ptr<NPC> npc : array)
-        {
-            auto [x, y] = npc->position();
-            int i = x / step_x;
-            int j = y / step_y;
-            if (i >= grid) --i;
-            if (j >= grid) --j;
-            
-            if (npc->isAlive())
+        {   
+            std::lock_guard<std::mutex> lock(mtx);
+            const int grid{20}, step_x{MAX_X / grid}, step_y{MAX_Y / grid};
+            std::array<char, grid * grid> fields{0};
+            for (std::shared_ptr<NPC> npc : array)
             {
-                switch (npc->getIntType())
+                auto [x, y] = npc->position();
+                int i = x / step_x;
+                int j = y / step_y;
+                if (i >= grid) --i;
+                if (j >= grid) --j;
+                
+                if (npc->isAlive())
                 {
-                case DragonType:
-                    fields[i + grid * j] = 'D';
-                    break;
-                case BullType:
-                    fields[i + grid * j] = 'B';
-                    break;
-                case FrogType:
-                    fields[i + grid * j] = 'F';
-                    break;
-                default:
-                    break;
+                    switch (npc->getIntType())
+                    {
+                    case DragonType:
+                        fields[i + grid * j] = 'D';
+                        break;
+                    case BullType:
+                        fields[i + grid * j] = 'B';
+                        break;
+                    case FrogType:
+                        fields[i + grid * j] = 'F';
+                        break;
+                    default:
+                        break;
+                    }
                 }
             }
-        }
 
-        std::lock_guard<std::shared_mutex> lck(print_mutex);
-        for (int j = 0; j < grid; ++j)
-        {
-            for (int i = 0; i < grid; ++i)
+        
+            for (int j = 0; j < grid; ++j)
             {
-                char c = fields[i + j * grid];
-                if (c != 0)
-                    std::cout << "[" << c << "]";
-                else
-                    std::cout << "[ ]";
+                for (int i = 0; i < grid; ++i)
+                {
+                    char c = fields[i + j * grid];
+                    if (c != 0)
+                        std::cout << "[" << c << "]";
+                    else
+                        std::cout << "[ ]";
+                }
+                std::cout << std::endl;
             }
             std::cout << std::endl;
         }
-        std::cout << std::endl;
 
         std::this_thread::sleep_for(1s);
     };

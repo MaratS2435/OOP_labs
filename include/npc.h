@@ -39,7 +39,7 @@ class NPC : public std::enable_shared_from_this<NPC>
         friend std::ostream &operator<<(std::ostream &os, NPC &npc);
 
     protected:
-        std::mutex mtx;
+        //std::mutex mtx;
 
         NpcType type;
         int x;
